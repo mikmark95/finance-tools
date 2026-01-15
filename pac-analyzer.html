@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizzatore Portafoglio PAC</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 24px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .main-content {
+            padding: 0 24px 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-export, .btn-import {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-export:hover, .btn-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .icon {
+            width: 32px;
+            height: 32px;
+            color: #667eea;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr 2fr 1fr;
+            gap: 12px;
+        }
+
+        .etf-input-container {
+            position: relative;
+        }
+
+        .etf-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .etf-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .suggestion-item:hover {
+            background: #f3f4f6;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .new-etf-option {
+            background: #eef2ff;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .new-etf-option:hover {
+            background: #e0e7ff;
+        }
+
+        .input-field {
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-subtext {
+            font-size: 13px;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        .bg-blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .bg-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .bg-orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .table-section {
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        th.right {
+            text-align: right;
+        }
+
+        th.center {
+            text-align: center;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        td.right {
+            text-align: right;
+        }
+
+        td.center {
+            text-align: center;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .performance-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .positive {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .neutral {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .btn-icon:hover {
+            opacity: 0.7;
+        }
+
+        .chart-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .chart-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .chart-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .input-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .acquisitions-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        .acquisition-item {
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .etf-row-group {
+            background: #fafafa;
+        }
+
+        .sub-row {
+            background: white;
+            font-size: 13px;
+            display: none;
+        }
+
+        .sub-row.visible {
+            display: table-row;
+        }
+
+        .sub-row td {
+            padding: 8px 16px;
+        }
+
+        .toggle-icon {
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-link {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="nav-link">🏠 Home</a>
+            <a href="pac-analyzer.html" class="nav-link active">📈 Analizzatore PAC</a>
+            <a href="simulatore-pac.html" class="nav-link">💰 Simulatore PAC</a>
+            <a href="budget.html" class="nav-link">🧾 Budget</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <div class="header-left">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                    <h1>Analizzatore Portafoglio PAC</h1>
+                </div>
+                <div class="header-buttons">
+                    <button class="btn-export" onclick="exportData()">📥 Esporta</button>
+                    <button class="btn-import" onclick="document.getElementById('importFile').click()">📤 Importa</button>
+                    <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importData(event)">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Registra Acquisto ETF</h2>
+                <div class="form-grid">
+                    <div class="etf-input-container">
+                        <input type="text" id="nome" class="input-field" placeholder="Nome ETF" autocomplete="off" 
+                               oninput="showSuggestions()" onfocus="showSuggestions()" onblur="hideSuggestionsDelayed()">
+                        <div id="suggestions" class="etf-suggestions"></div>
+                    </div>
+                    <input type="number" id="prezzoAcquisto" class="input-field" placeholder="Prezzo acquisto (€)" step="0.01">
+                    <input type="number" id="numeroquote" class="input-field" placeholder="Numero quote" step="0.01">
+                    <input type="date" id="dataAcquisto" class="input-field">
+                    <button class="btn-add" onclick="addAcquisition()">➕ Aggiungi</button>
+                </div>
+            </div>
+
+            <div id="statsSection" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card bg-blue">
+                        <h3>Valore Attuale Portafoglio</h3>
+                        <div class="stat-value" id="valoreAttuale">€ 0.00</div>
+                    </div>
+                    <div class="stat-card bg-orange">
+                        <h3>Capitale Investito</h3>
+                        <div class="stat-value" id="capitaleInvestito">€ 0.00</div>
+                    </div>
+                    <div class="stat-card bg-green">
+                        <h3>Guadagno/Perdita</h3>
+                        <div class="stat-value" id="guadagnoPerdita">€ 0.00</div>
+                        <div class="stat-subtext" id="percentualePerformance">0.00%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tableSection" style="display: none;">
+                <div class="table-section">
+                    <h2>Dettagli Portafoglio</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ETF</th>
+                                <th class="right">Prezzo Medio Acquisto</th>
+                                <th class="right">Prezzo Attuale</th>
+                                <th class="right">Quote Totali</th>
+                                <th class="right">Investito</th>
+                                <th class="right">Valore Attuale</th>
+                                <th class="right">+/- €</th>
+                                <th class="right">+/- %</th>
+                                <th class="center">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="chartSection" style="display: none;">
+                <div class="chart-section">
+                    <h2>Distribuzione Portafoglio</h2>
+                    <div class="chart-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+                <p>Inizia ad aggiungere i tuoi ETF per visualizzare il portafoglio</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="priceModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Aggiorna Prezzo Attuale</h2>
+            <div class="modal-body">
+                <div>
+                    <div class="input-label">ETF: <span id="priceModalEtfName" style="font-weight: 700;"></span></div>
+                </div>
+                <div>
+                    <div class="input-label">Nuovo Prezzo Attuale (€)</div>
+                    <input type="number" id="newPrezzoAttuale" class="input-field" style="width: 100%;" step="0.01">
+                </div>
+                <div style="margin-top: 12px; padding: 12px; background: #f0f9ff; border-radius: 8px;">
+                    <div class="input-label" style="margin-bottom: 8px;">Acquisti registrati:</div>
+                    <div id="acquisitionsList" class="acquisitions-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePriceModal()">Annulla</button>
+                <button class="btn-primary" onclick="updatePrice()">Aggiorna</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const COLORS = ['#667eea', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+        let acquisitions = [];
+        let etfsPrezziAttuali = {};
+        let chart = null;
+        let editingEtfName = null;
+        let hideTimeout = null;
+
+        window.addEventListener('load', () => {
+            loadData();
+            renderPortfolio();
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dataAcquisto').value = today;
+        });
+
+        function getExistingEtfs() {
+            const grouped = groupAcquisitionsByEtf();
+            return Object.keys(grouped).sort();
+        }
+
+        function showSuggestions() {
+            const input = document.getElementById('nome');
+            const suggestionsDiv = document.getElementById('suggestions');
+            const inputValue = input.value.trim().toUpperCase();
+            
+            const existingEtfs = getExistingEtfs();
+            
+            if (existingEtfs.length === 0 && inputValue === '') {
+                suggestionsDiv.classList.remove('active');
+                return;
+            }
+            
+            let html = '';
+            
+            const filteredEtfs = existingEtfs.filter(etf => 
+                etf.includes(inputValue)
+            );
+            
+            filteredEtfs.forEach(etf => {
+                html += `<div class="suggestion-item" onmousedown="selectEtf('${etf}')">${etf}</div>`;
+            });
+            
+            if (inputValue !== '') {
+                const isExactMatch = existingEtfs.some(etf => etf === inputValue);
+                if (!isExactMatch) {
+                    html += `<div class="suggestion-item new-etf-option" onmousedown="selectEtf('${inputValue}')">➕ Nuovo: ${inputValue}</div>`;
+                }
+            }
+            
+            if (html !== '') {
+                suggestionsDiv.innerHTML = html;
+                suggestionsDiv.classList.add('active');
+            } else {
+                suggestionsDiv.classList.remove('active');
+            }
+        }
+
+        function selectEtf(etfName) {
+            document.getElementById('nome').value = etfName;
+            hideSuggestions();
+        }
+
+        function hideSuggestions() {
+            document.getElementById('suggestions').classList.remove('active');
+        }
+
+        function hideSuggestionsDelayed() {
+            hideTimeout = setTimeout(hideSuggestions, 200);
+        }
+
+        function loadData() {
+            const savedAcquisitions = localStorage.getItem('pac-acquisitions');
+            const savedPrezzi = localStorage.getItem('pac-prezzi-attuali');
+            
+            if (savedAcquisitions) {
+                acquisitions = JSON.parse(savedAcquisitions);
+            }
+            if (savedPrezzi) {
+                etfsPrezziAttuali = JSON.parse(savedPrezzi);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('pac-acquisitions', JSON.stringify(acquisitions));
+            localStorage.setItem('pac-prezzi-attuali', JSON.stringify(etfsPrezziAttuali));
+        }
+
+        function addAcquisition() {
+            const nome = document.getElementById('nome').value.trim();
+            const prezzoAcquisto = parseFloat(document.getElementById('prezzoAcquisto').value);
+            const numeroquote = parseFloat(document.getElementById('numeroquote').value);
+            const dataAcquisto = document.getElementById('dataAcquisto').value;
+
+            if (nome && prezzoAcquisto && numeroquote && dataAcquisto) {
+                acquisitions.push({
+                    id: Date.now(),
+                    nome: nome.toUpperCase(),
+                    prezzoAcquisto,
+                    numeroquote,
+                    dataAcquisto
+                });
+
+                if (!etfsPrezziAttuali[nome.toUpperCase()]) {
+                    etfsPrezziAttuali[nome.toUpperCase()] = prezzoAcquisto;
+                }
+
+                saveData();
+                renderPortfolio();
+
+                document.getElementById('nome').value = '';
+                document.getElementById('prezzoAcquisto').value = '';
+                document.getElementById('numeroquote').value = '';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('dataAcquisto').value = today;
+            } else {
+                alert('Per favore compila tutti i campi');
+            }
+        }
+
+        function removeAcquisition(id) {
+            if (confirm('Sei sicuro di voler eliminare questo acquisto?')) {
+                const acquisition = acquisitions.find(a => a.id === id);
+                acquisitions = acquisitions.filter(a => a.id !== id);
+                
+                const remainingOfSameEtf = acquisitions.filter(a => a.nome === acquisition.nome);
+                if (remainingOfSameEtf.length === 0) {
+                    delete etfsPrezziAttuali[acquisition.nome];
+                }
+                
+                saveData();
+                renderPortfolio();
+            }
+        }
+
+        function openPriceModal(etfName) {
+            editingEtfName = etfName;
+            document.getElementById('priceModalEtfName').textContent = etfName;
+            document.getElementById('newPrezzoAttuale').value = etfsPrezziAttuali[etfName] || '';
+            
+            const etfAcquisitions = acquisitions.filter(a => a.nome === etfName);
+            const listHtml = etfAcquisitions.map(acq => `
+                <div class="acquisition-item">
+                    <strong>${formatDate(acq.dataAcquisto)}</strong>: ${acq.numeroquote.toFixed(2)} quote a € ${acq.prezzoAcquisto.toFixed(2)}
+                </div>
+            `).join('');
+            
+            document.getElementById('acquisitionsList').innerHTML = listHtml;
+            document.getElementById('priceModal').classList.add('active');
+        }
+
+        function closePriceModal() {
+            document.getElementById('priceModal').classList.remove('active');
+            editingEtfName = null;
+        }
+
+        function updatePrice() {
+            const newPrice = parseFloat(document.getElementById('newPrezzoAttuale').value);
+            
+            if (newPrice && newPrice > 0) {
+                etfsPrezziAttuali[editingEtfName] = newPrice;
+                saveData();
+                renderPortfolio();
+                closePriceModal();
+            } else {
+                alert('Inserisci un prezzo valido');
+            }
+        }
+
+        function groupAcquisitionsByEtf() {
+            const grouped = {};
+            
+            acquisitions.forEach(acq => {
+                if (!grouped[acq.nome]) {
+                    grouped[acq.nome] = [];
+                }
+                grouped[acq.nome].push(acq);
+            });
+            
+            return grouped;
+        }
+
+        function calculatePortfolio() {
+            const grouped = groupAcquisitionsByEtf();
+            const portfolio = [];
+            
+            Object.keys(grouped).forEach(etfName => {
+                const acqs = grouped[etfName];
+                const quoteTotali = acqs.reduce((sum, acq) => sum + acq.numeroquote, 0);
+                const investitoTotale = acqs.reduce((sum, acq) => sum + (acq.prezzoAcquisto * acq.numeroquote), 0);
+                const prezzoMedioAcquisto = investitoTotale / quoteTotali;
+                const prezzoAttuale = etfsPrezziAttuali[etfName] || prezzoMedioAcquisto;
+                const valoreAttuale = quoteTotali * prezzoAttuale;
+                const differenza = valoreAttuale - investitoTotale;
+                const percentuale = investitoTotale > 0 ? (differenza / investitoTotale * 100) : 0;
+                
+                portfolio.push({
+                    nome: etfName,
+                    acquisitions: acqs,
+                    quoteTotali,
+                    prezzoMedioAcquisto,
+                    prezzoAttuale,
+                    investito: investitoTotale,
+                    valoreAttuale,
+                    differenza,
+                    percentuale
+                });
+            });

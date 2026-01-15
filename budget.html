@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pianificatore Budget Familiare</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-title {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .summary-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .amount {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button.delete {
+            background: #e74c3c;
+            padding: 8px 16px;
+        }
+
+        button.delete:hover {
+            background: #c0392b;
+        }
+
+        .item-list {
+            margin-top: 15px;
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .item-amount {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto 20px;
+        }
+
+        .chart-wrapper {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-legend {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .export-import {
+            display: none;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .savings-allocation {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .allocation-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .percentage-input {
+            text-align: center;
+        }
+
+        .toggle-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .category-section {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-tag {
+            background: #ff9800;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-tag button {
+            background: rgba(255,255,255,0.3);
+            padding: 2px 8px;
+            font-size: 0.8em;
+            border-radius: 50%;
+        }
+
+        .category-tag button:hover {
+            background: rgba(255,255,255,0.5);
+        }
+    
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 24px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .main-content {
+            padding: 0 24px 24px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-link {
+                justify-content: center;
+            }
+        }
+
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="nav-link">🏠 Home</a>
+            <a href="pac-analyzer.html" class="nav-link">📈 Analizzatore PAC</a>
+            <a href="simulatore-pac.html" class="nav-link">💰 Simulatore PAC</a>
+            <a href="budget.html" class="nav-link active">🧾 Budget</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+
+    <div class="container">
+        <div class="header-section">
+            <div class="header-title">
+                <h1>💰 Budget</h1>
+            </div>
+            <div class="header-buttons">
+                <button onclick="exportData()">📥 Esporta</button>
+                <button onclick="document.getElementById('fileInput').click()">📤 Importa</button>
+                <input type="file" id="fileInput" class="file-input" accept=".json" onchange="importData(event)">
+            </div>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Entrate Totali</h3>
+                <div class="amount" id="totalIncome">€0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Spese Totali</h3>
+                <div class="amount" id="totalExpenses">€0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Risparmi Disponibili</h3>
+                <div class="amount" id="totalSavings">€0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Investimenti</h3>
+                <div class="amount" id="totalInvestments">€0</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📈 Entrate</h2>
+            <div class="input-group">
+                <input type="text" id="incomeName" placeholder="Descrizione entrata (es. Stipendio)">
+                <input type="number" id="incomeAmount" placeholder="Importo €" step="0.01">
+                <button onclick="addIncome()">Aggiungi</button>
+            </div>
+            <div class="item-list" id="incomeList"></div>
+        </div>
+
+        <div class="section">
+            <h2>📉 Spese</h2>
+            <div class="input-group">
+                <input type="text" id="expenseName" placeholder="Descrizione spesa (es. Affitto)">
+                <input type="number" id="expenseAmount" placeholder="Importo €" step="0.01">
+                <button onclick="addExpense()">Aggiungi</button>
+            </div>
+            <div class="item-list" id="expenseList"></div>
+        </div>
+
+        <div class="section">
+            <div class="savings-allocation">
+                <h2>💎 Allocazione Risparmi</h2>
+                <p style="margin-bottom: 15px; color: #555;">Alloca i tuoi risparmi in diverse categorie di investimento</p>
+                
+                <div class="toggle-container">
+                    <span>Tipo allocazione:</span>
+                    <button class="toggle-btn active" id="percentageBtn" onclick="toggleAllocationType('percentage')">Percentuale</button>
+                    <button class="toggle-btn" id="fixedBtn" onclick="toggleAllocationType('fixed')">Cifra Fissa</button>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="investmentName" placeholder="Nome investimento (es. Azioni, Obbligazioni)">
+                    <input type="number" id="investmentAmount" class="percentage-input" placeholder="%" step="0.1" min="0">
+                    <button onclick="addInvestment()">Aggiungi</button>
+                </div>
+                <div id="investmentList"></div>
+                <div style="margin-top: 15px; font-weight: bold; color: #2e7d32;">
+                    <span id="allocationSummary">Allocazione totale: 0%</span> | 
+                    Risparmi rimanenti: €<span id="remainingSavings">0</span>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h2>🏷️ Categorie Personalizzate</h2>
+                <p style="margin-bottom: 15px; color: #555;">Aggiungi categorie personalizzate da visualizzare nel grafico</p>
+                <div class="input-group">
+                    <input type="text" id="categoryName" placeholder="Nome categoria (es. Risparmio Casa)">
+                    <input type="number" id="categoryAmount" placeholder="Importo €" step="0.01" min="0">
+                    <button onclick="addCategory()">Aggiungi Categoria</button>
+                </div>
+                <div class="category-list" id="categoryList"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Panoramica Grafica</h2>
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-import">
+            <button onclick="exportData()">📥 Esporta Dati</button>
+            <button onclick="document.getElementById('fileInput').click()">📤 Importa Dati</button>
+            <input type="file" id="fileInput" class="file-input" accept=".json" onchange="importData(event)">
+        </div>
+    </div>
+
+    <script>
+        let budgetData = {
+            incomes: [],
+            expenses: [],
+            investments: [],
+            categories: [],
+            allocationType: 'percentage'
+        };
+
+        let chart = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('familyBudget');
+            if (saved) {
+                budgetData = JSON.parse(saved);
+                if (!budgetData.categories) budgetData.categories = [];
+                if (!budgetData.allocationType) budgetData.allocationType = 'percentage';
+                updateAllocationTypeUI();
+                renderAll();
+            } else {
+                renderChart();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('familyBudget', JSON.stringify(budgetData));
+        }
+
+        function addIncome() {
+            const name = document.getElementById('incomeName').value;
+            const amount = parseFloat(document.getElementById('incomeAmount').value);
+            
+            if (name && amount > 0) {
+                budgetData.incomes.push({ name, amount });
+                document.getElementById('incomeName').value = '';
+                document.getElementById('incomeAmount').value = '';
+                renderAll();
+                saveData();
+            }
+        }
+
+        function addExpense() {
+            const name = document.getElementById('expenseName').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            
+            if (name && amount > 0) {
+                budgetData.expenses.push({ name, amount });
+                document.getElementById('expenseName').value = '';
+                document.getElementById('expenseAmount').value = '';
+                renderAll();
+                saveData();
+            }
+        }
+
+        function addInvestment() {
+            const name = document.getElementById('investmentName').value;
+            const amount = parseFloat(document.getElementById('investmentAmount').value);
+            
+            if (name && amount > 0) {
+                budgetData.investments.push({ 
+                    name, 
+                    amount,
+                    type: budgetData.allocationType
+                });
+                document.getElementById('investmentName').value = '';
+                document.getElementById('investmentAmount').value = '';
+                renderAll();
+                saveData();
+            }
+        }
+
+        function addCategory() {
+            const name = document.getElementById('categoryName').value;
+            const amount = parseFloat(document.getElementById('categoryAmount').value);
+            
+            if (name && amount > 0) {
+                budgetData.categories.push({ name, amount });
+                document.getElementById('categoryName').value = '';
+                document.getElementById('categoryAmount').value = '';
+                renderAll();
+                saveData();
+            }
+        }
+
+        function toggleAllocationType(type) {
+            budgetData.allocationType = type;
+            updateAllocationTypeUI();
+            saveData();
+        }
+
+        function updateAllocationTypeUI() {
+            const percentageBtn = document.getElementById('percentageBtn');
+            const fixedBtn = document.getElementById('fixedBtn');
+            const amountInput = document.getElementById('investmentAmount');
+            
+            if (budgetData.allocationType === 'percentage') {
+                percentageBtn.classList.add('active');
+                fixedBtn.classList.remove('active');
+                amountInput.placeholder = '%';
+                amountInput.max = '100';
+            } else {
+                percentageBtn.classList.remove('active');
+                fixedBtn.classList.add('active');
+                amountInput.placeholder = '€';
+                amountInput.removeAttribute('max');
+            }
+        }
+
+        function deleteIncome(index) {
+            budgetData.incomes.splice(index, 1);
+            renderAll();
+            saveData();
+        }
+
+        function deleteExpense(index) {
+            budgetData.expenses.splice(index, 1);
+            renderAll();
+            saveData();
+        }
+
+        function deleteInvestment(index) {
+            budgetData.investments.splice(index, 1);
+            renderAll();
+            saveData();
+        }
+
+        function deleteCategory(index) {
+            budgetData.categories.splice(index, 1);
+            renderAll();
+            saveData();
+        }
+
+        function calculateTotals() {
+            const totalIncome = budgetData.incomes.reduce((sum, item) => sum + item.amount, 0);
+            const totalExpenses = budgetData.expenses.reduce((sum, item) => sum + item.amount, 0);
+            const totalSavings = totalIncome - totalExpenses;
+            
+            let totalInvestments = 0;
+            let totalAllocationPercentage = 0;
+            
+            budgetData.investments.forEach(item => {
+                if (item.type === 'percentage') {
+                    totalInvestments += (totalSavings * item.amount) / 100;
+                    totalAllocationPercentage += item.amount;
+                } else {
+                    totalInvestments += item.amount;
+                }
+            });
+
+            const totalCategories = budgetData.categories.reduce((sum, item) => sum + item.amount, 0);
+            const remainingSavings = totalSavings - totalInvestments - totalCategories;
+
+            return { 
+                totalIncome, 
+                totalExpenses, 
+                totalSavings, 
+                totalAllocationPercentage, 
+                totalInvestments,
+                totalCategories,
+                remainingSavings 
+            };
+        }
+
+        function renderAll() {
+            const { totalIncome, totalExpenses, totalSavings, totalAllocationPercentage, totalInvestments, totalCategories, remainingSavings } = calculateTotals();
+
+            document.getElementById('totalIncome').textContent = `€${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `€${totalExpenses.toFixed(2)}`;
+            document.getElementById('totalSavings').textContent = `€${totalSavings.toFixed(2)}`;
+            document.getElementById('totalInvestments').textContent = `€${totalInvestments.toFixed(2)}`;
+            
+            const hasPercentage = budgetData.investments.some(inv => inv.type === 'percentage');
+            if (hasPercentage) {
+                document.getElementById('allocationSummary').textContent = `Allocazione %: ${totalAllocationPercentage.toFixed(1)}%`;
+            } else {
+                document.getElementById('allocationSummary').textContent = `Investimenti totali: €${totalInvestments.toFixed(2)}`;
+            }
+            
+            document.getElementById('remainingSavings').textContent = remainingSavings.toFixed(2);
+
+            renderIncomes();
+            renderExpenses();
+            renderInvestments();
+            renderCategories();
+            renderChart();
+        }
+
+        function renderIncomes() {
+            const list = document.getElementById('incomeList');
+            list.innerHTML = budgetData.incomes.map((item, index) => `
+                <div class="item">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-amount">€${item.amount.toFixed(2)}</div>
+                    <button class="delete" onclick="deleteIncome(${index})">Elimina</button>
+                </div>
+            `).join('');
+        }
+
+        function renderExpenses() {
+            const list = document.getElementById('expenseList');
+            list.innerHTML = budgetData.expenses.map((item, index) => `
+                <div class="item">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-amount">€${item.amount.toFixed(2)}</div>
+                    <button class="delete" onclick="deleteExpense(${index})">Elimina</button>
+                </div>
+            `).join('');
+        }
+
+        function renderInvestments() {
+            const list = document.getElementById('investmentList');
+            const { totalSavings } = calculateTotals();
+            
+            list.innerHTML = budgetData.investments.map((item, index) => {
+                let displayValue, calculatedAmount;
+                
+                if (item.type === 'percentage') {
+                    calculatedAmount = (totalSavings * item.amount) / 100;
+                    displayValue = `${item.amount}%`;
+                } else {
+                    calculatedAmount = item.amount;
+                    displayValue = `€${item.amount.toFixed(2)}`;
+                }
+                
+                return `
+                    <div class="allocation-item">
+                        <div class="item-name">${item.name}</div>
+                        <div>${displayValue}</div>
+                        <div class="item-amount">€${calculatedAmount.toFixed(2)}</div>
+                        <button class="delete" onclick="deleteInvestment(${index})">Elimina</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('categoryList');
+            list.innerHTML = budgetData.categories.map((item, index) => `
+                <div class="category-tag">
+                    <span>${item.name}: €${item.amount.toFixed(2)}</span>
+                    <button onclick="deleteCategory(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('budgetChart');
+            if (!ctx) return;
+            
+            const { totalExpenses, totalInvestments, remainingSavings } = calculateTotals();
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const labels = [];
+            const data = [];
+            const colors = [];
+
+            if (totalExpenses > 0) {
+                labels.push('Spese');
+                data.push(totalExpenses);
+                colors.push('#e74c3c');
+            }
+
+            if (totalInvestments > 0) {
+                labels.push('Investimenti');
+                data.push(totalInvestments);
+                colors.push('#3498db');
+            }
+
+            budgetData.categories.forEach((category, index) => {
+                labels.push(category.name);
+                data.push(category.amount);
+                const hue = 30 + (index * 60);
+                colors.push(`hsl(${hue}, 70%, 60%)`);
+            });
+
+            if (remainingSavings > 0) {
+                labels.push('Risparmi Disponibili');
+                data.push(remainingSavings);
+                colors.push('#2ecc71');
+            }
+
+            if (data.length === 0) {
+                labels.push('Nessun dato');
+                data.push(1);
+                colors.push('#cccccc');
+            }
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.3,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            align: 'center',
+                            labels: {
+                                font: {
+                                    size: 11,
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                padding: 8,
+                                boxWidth: 12,
+                                boxHeight: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            },
+                            maxHeight: 120
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.label === 'Nessun dato') return 'Aggiungi entrate e spese';
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': €' + context.parsed.toFixed(2) + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 5,
+                            left: 10,
+                            right: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(budgetData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `budget-familiare-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        budgetData = JSON.parse(e.target.result);
+                        if (!budgetData.categories) budgetData.categories = [];
+                        if (!budgetData.allocationType) budgetData.allocationType = 'percentage';
+                        updateAllocationTypeUI();
+                        renderAll();
+                        saveData();
+                        alert('Dati importati con successo!');
+                    } catch (error) {
+                        alert('Errore nell\'importazione dei dati. Assicurati che il file sia valido.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        loadData();
+    </script>
+
+    </div>
+
+    </div>
+</body>
+</html>

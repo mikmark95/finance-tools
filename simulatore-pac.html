@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulatore PAC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-title {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-buttons button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 10px 20px;
+            font-size: 0.9em;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .header-buttons button:hover {
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .input-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            width: 100%;
+            outline: none;
+        }
+
+        .input-box input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .tables-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .table-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .table-container h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .table-wrapper {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.85em;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 8px;
+            text-align: right;
+            font-weight: 600;
+            border-bottom: 3px solid white;
+        }
+
+        th:first-child {
+            text-align: center;
+        }
+
+        td {
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 1px solid #e8e8e8;
+            background: white;
+        }
+
+        td:first-child {
+            text-align: center;
+        }
+
+        tbody tr:hover td {
+            background: #f0f4ff;
+        }
+
+        .year-marker {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+            color: white !important;
+            font-weight: bold;
+            text-align: center !important;
+            padding: 12px !important;
+            font-size: 0.95em;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .chart-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .chart-info {
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+
+        .chart-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .chart-btn {
+            padding: 6px 12px;
+            font-size: 0.8em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chart-btn:hover {
+            background: #764ba2;
+        }
+
+        @media (max-width: 1024px) {
+            .tables-section,
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card h4 {
+            font-size: 0.9em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        .summary-card .sub-value {
+            font-size: 0.8em;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+    
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 24px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .main-content {
+            padding: 0 24px 24px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-link {
+                justify-content: center;
+            }
+        }
+
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="nav-link">🏠 Home</a>
+            <a href="pac-analyzer.html" class="nav-link">📈 Analizzatore PAC</a>
+            <a href="simulatore-pac.html" class="nav-link active">💰 Simulatore PAC</a>
+            <a href="budget.html" class="nav-link">🧾 Budget</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+
+    <div class="container">
+        <div class="header-section">
+            <div class="header-title">
+                <h1>💰 SIMULATORE PAC</h1>
+                <p style="text-align: center; color: #666; font-size: 1.1em;">Piano di Accumulo di Capitale</p>
+            </div>
+            <div class="header-buttons">
+                <button onclick="exportData()">📥 Esporta Dati</button>
+                <button onclick="document.getElementById('fileInput').click()">📤 Importa Dati</button>
+                <input type="file" id="fileInput" class="file-input" accept=".json" onchange="importData(event)">
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>DATI DI INPUT</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>INTERESSE ANNUO</label>
+                    <div class="input-box">
+                        <input type="number" id="interestRate" value="10.00" step="0.1" oninput="calculate()">
+                        <span style="margin-left: 5px;">%</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>CAPITALE INIZIALE</label>
+                    <div class="input-box">
+                        <span style="margin-right: 5px;">€</span>
+                        <input type="number" id="initialCapital" value="10000" step="100" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>INTERESSE MENSILE</label>
+                    <div class="input-box">
+                        <input type="text" id="monthlyInterest" value="0.80%" readonly style="cursor: not-allowed;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>VERSAMENTO MENSILE</label>
+                    <div class="input-box">
+                        <span style="margin-right: 5px;">€</span>
+                        <input type="number" id="monthlyDeposit" value="500" step="50" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-cards" id="summaryCards"></div>
+
+        <div class="tables-section">
+            <div class="table-container">
+                <h3>📋 DETTAGLIO MENSILE</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ANNO</th>
+                                <th>CAPITALE CUMULATO</th>
+                                <th>CAPITALE VERSATO</th>
+                                <th>INTERESSI CUMULATI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <h3>📊 PROIEZIONE ANNUALE</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ANNO</th>
+                                <th>CAPITALE CUMULATO</th>
+                                <th>CAPITALE VERSATO</th>
+                                <th>INTERESSI CUMULATI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yearlyTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-box">
+                <h3>📈 CAPITALE CUMULATO vs VERSATO</h3>
+                <p class="chart-info">Usa i pulsanti sotto per controllare lo zoom</p>
+                <div class="chart-wrapper">
+                    <canvas id="chart1"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button class="chart-btn" onclick="zoomIn('chart1')">🔍 Zoom In</button>
+                    <button class="chart-btn" onclick="zoomOut('chart1')">🔍 Zoom Out</button>
+                    <button class="chart-btn" onclick="resetZoom('chart1')">↺ Reset</button>
+                </div>
+            </div>
+            <div class="chart-box">
+                <h3>📊 CAPITALE VERSATO vs INTERESSI CUMULATI</h3>
+                <p class="chart-info">Usa i pulsanti sotto per controllare lo zoom</p>
+                <div class="chart-wrapper">
+                    <canvas id="chart2"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button class="chart-btn" onclick="zoomIn('chart2')">🔍 Zoom In</button>
+                    <button class="chart-btn" onclick="zoomOut('chart2')">🔍 Zoom Out</button>
+                    <button class="chart-btn" onclick="resetZoom('chart2')">↺ Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart1, chart2;
+        let pacData = {
+            interestRate: 10.00,
+            initialCapital: 10000,
+            monthlyDeposit: 500
+        };
+
+        function exportData() {
+            const dataStr = JSON.stringify(pacData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `simulatore-pac-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        pacData = imported;
+                        document.getElementById('interestRate').value = pacData.interestRate;
+                        document.getElementById('initialCapital').value = pacData.initialCapital;
+                        document.getElementById('monthlyDeposit').value = pacData.monthlyDeposit;
+                        calculate();
+                        alert('Dati importati con successo!');
+                    } catch (error) {
+                        alert('Errore nell\'importazione dei dati. Assicurati che il file sia valido.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function zoomIn(chartId) {
+            const chart = chartId === 'chart1' ? chart1 : chart2;
+            if (chart) {
+                chart.zoom(1.2);
+            }
+        }
+
+        function zoomOut(chartId) {
+            const chart = chartId === 'chart1' ? chart1 : chart2;
+            if (chart) {
+                chart.zoom(0.8);
+            }
+        }
+
+        function resetZoom(chartId) {
+            const chart = chartId === 'chart1' ? chart1 : chart2;
+            if (chart) {
+                chart.resetZoom();
+            }
+        }
+
+        function calculate() {
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const initialCapital = parseFloat(document.getElementById('initialCapital').value);
+            const monthlyDeposit = parseFloat(document.getElementById('monthlyDeposit').value);
+            
+            pacData = { interestRate: interestRate * 100, initialCapital, monthlyDeposit };
+            
+            const monthlyInterest = Math.pow(1 + interestRate, 1/12) - 1;
+            document.getElementById('monthlyInterest').value = (monthlyInterest * 100).toFixed(2) + '%';
+
+            let cumulatedCapital = initialCapital;
+            let totalDeposited = initialCapital;
+            let cumulatedInterest = 0;
+
+            const monthlyData = [];
+            const yearlyData = [];
+
+            for (let month = 0; month <= 720; month++) {
+                if (month > 0) {
+                    const interest = cumulatedCapital * monthlyInterest;
+                    cumulatedCapital += interest + monthlyDeposit;
+                    totalDeposited += monthlyDeposit;
+                    cumulatedInterest += interest;
+                }
+
+                const year = Math.floor(month / 12);
+                const monthInYear = month % 12;
+
+                monthlyData.push({
+                    month,
+                    year,
+                    monthInYear,
+                    cumulatedCapital,
+                    totalDeposited,
+                    cumulatedInterest
+                });
+
+                if (monthInYear === 0) {
+                    yearlyData.push({
+                        year,
+                        cumulatedCapital,
+                        totalDeposited,
+                        cumulatedInterest
+                    });
+                }
+            }
+
+            renderTables(monthlyData, yearlyData);
+            renderSummaryCards(yearlyData);
+            renderCharts(monthlyData);
+        }
+
+        function renderTables(monthlyData, yearlyData) {
+            const monthlyTable = document.getElementById('monthlyTable');
+            monthlyTable.innerHTML = '';
+
+            monthlyData.forEach((data, index) => {
+                if (data.monthInYear === 0 && data.month > 0) {
+                    const yearRow = document.createElement('tr');
+                    yearRow.innerHTML = `
+                        <td colspan="4" class="year-marker">ANNO ${data.year}</td>
+                    `;
+                    monthlyTable.appendChild(yearRow);
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${data.monthInYear === 0 ? data.year : ''}</td>
+                    <td>€ ${data.cumulatedCapital.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>€ ${data.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>€ ${data.cumulatedInterest.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                `;
+                monthlyTable.appendChild(row);
+            });
+
+            const yearlyTable = document.getElementById('yearlyTable');
+            yearlyTable.innerHTML = '';
+
+            const displayYears = [1, 3, 5, 10, 15, 20, 25, 30, 40, 50, 60];
+            displayYears.forEach(year => {
+                const data = yearlyData.find(d => d.year === year);
+                if (data) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="year-marker">ANNO ${data.year}</td>
+                        <td>€ ${data.cumulatedCapital.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>€ ${data.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>€ ${data.cumulatedInterest.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    `;
+                    yearlyTable.appendChild(row);
+                }
+            });
+        }
+
+        function renderSummaryCards(yearlyData) {
+            const summaryCards = document.getElementById('summaryCards');
+            const displayYears = [1, 3, 5, 10, 15, 20, 25, 30, 40, 50, 60];
+            
+            summaryCards.innerHTML = displayYears.map(year => {
+                const data = yearlyData.find(d => d.year === year);
+                if (data) {
+                    return `
+                        <div class="summary-card">
+                            <h4>ANNO ${data.year}</h4>
+                            <div class="value">€${Math.round(data.cumulatedCapital).toLocaleString('it-IT')}</div>
+                            <div class="sub-value">
+                                Interessi: €${Math.round(data.cumulatedInterest).toLocaleString('it-IT')}
+                            </div>
+                        </div>
+                    `;
+                }
+                return '';
+            }).join('');
+        }
+
+        function formatYAxis(value) {
+            if (value >= 1000000) {
+                return '€' + (value / 1000000).toFixed(1) + 'M';
+            } else if (value >= 1000) {
+                return '€' + (value / 1000).toFixed(0) + 'k';
+            }
+            return '€' + value.toLocaleString('it-IT');
+        }
+
+        function renderCharts(monthlyData) {
+            const labels = monthlyData.filter((d, i) => i % 12 === 0).map(d => `Anno ${d.year}`);
+            const cumulatedCapitalData = monthlyData.filter((d, i) => i % 12 === 0).map(d => d.cumulatedCapital);
+            const totalDepositedData = monthlyData.filter((d, i) => i % 12 === 0).map(d => d.totalDeposited);
+            const cumulatedInterestData = monthlyData.filter((d, i) => i % 12 === 0).map(d => d.cumulatedInterest);
+
+            if (chart1) chart1.destroy();
+            if (chart2) chart2.destroy();
+
+            const maxValue1 = Math.max(...cumulatedCapitalData);
+            const stepSize1 = Math.ceil(maxValue1 / 10 / 50000) * 50000;
+
+            const ctx1 = document.getElementById('chart1').getContext('2d');
+            chart1 = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Capitale Cumulato',
+                            data: cumulatedCapitalData,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Capitale Versato',
+                            data: totalDepositedData,
+                            borderColor: '#f5576c',
+                            backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': €' + context.parsed.y.toLocaleString('it-IT', {minimumFractionDigits: 2});
+                                }
+                            }
+                        },
+                        zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.05,
+                                    modifierKey: null
+                                },
+                                drag: {
+                                    enabled: true,
+                                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                                    borderColor: '#667eea',
+                                    borderWidth: 1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'x'
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                                modifierKey: 'shift'
+                            },
+                            limits: {
+                                x: {min: 'original', max: 'original'},
+                                y: {min: 'original', max: 'original'}
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: stepSize1,
+                                callback: formatYAxis
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            const maxValue2 = Math.max(...cumulatedCapitalData);
+            const stepSize2 = Math.ceil(maxValue2 / 10 / 50000) * 50000;
+
+            const ctx2 = document.getElementById('chart2').getContext('2d');
+            chart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Capitale Versato',
+                            data: totalDepositedData,
+                            backgroundColor: '#667eea',
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Interessi Cumulati',
+                            data: cumulatedInterestData,
+                            backgroundColor: '#38ef7d',
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': €' + context.parsed.y.toLocaleString('it-IT', {minimumFractionDigits: 2});
+                                }
+                            }
+                        },
+                        zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.05,
+                                    modifierKey: null
+                                },
+                                drag: {
+                                    enabled: true,
+                                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                                    borderColor: '#667eea',
+                                    borderWidth: 1
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'x'
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                                modifierKey: 'shift'
+                            },
+                            limits: {
+                                x: {min: 'original', max: 'original'},
+                                y: {min: 'original', max: 'original'}
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: stepSize2,
+                                callback: formatYAxis
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        calculate();
+    </script>
+
+    </div>
+
+    </div>
+</body>
+</html>
