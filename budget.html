@@ -617,7 +617,9 @@
 
             document.getElementById('totalIncome').textContent = `€${totalIncome.toFixed(2)}`;
             document.getElementById('totalExpenses').textContent = `€${totalExpenses.toFixed(2)}`;
-            document.getElementById('totalSavings').textContent = `€${totalSavings.toFixed(2)}`;
+            // "Risparmi Disponibili" deve riflettere i risparmi *effettivamente disponibili* dopo investimenti e categorie.
+            // In precedenza mostrava solo (Entrate - Spese), quindi non cambiava quando aggiungevi investimenti/categorie.
+            document.getElementById('totalSavings').textContent = `€${remainingSavings.toFixed(2)}`;
             document.getElementById('totalInvestments').textContent = `€${totalInvestments.toFixed(2)}`;
             
             const hasPercentage = budgetData.investments.some(inv => inv.type === 'percentage');
