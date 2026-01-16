@@ -3,7 +3,7 @@
 Una **web app statica** composta da più strumenti finanziari pensati per l’uso personale e didattico.
 Il progetto è realizzato interamente in **HTML, CSS e JavaScript** ed è pubblicato tramite **GitHub Pages**.
 
-👉 **Sito online:** [https://mikmark95.github.io/REPLACE_WITH_REPO_NAME/](https://mikmark95.github.io/finance-tools/)
+👉 **Sito online:** [https://mikmark95.github.io/finance-tools/](https://mikmark95.github.io/finance-tools/)
 
 ---
 
