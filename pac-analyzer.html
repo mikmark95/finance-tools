@@ -14,54 +14,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
             min-height: 100vh;
-            padding: 0;
-        }
-
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 16px 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-bottom: 24px;
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .nav-link.active {
-            background: white;
-            color: #667eea;
-        }
-
-        .main-content {
-            padding: 0 24px 24px;
+            padding: 24px;
         }
 
         .container {
@@ -99,10 +54,10 @@
         }
 
         .btn-export, .btn-import {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #6366f1;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
@@ -111,12 +66,10 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .btn-export:hover, .btn-import:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+            background: #4f46e5;
         }
 
         .hidden-input {
@@ -126,11 +79,11 @@
         .icon {
             width: 32px;
             height: 32px;
-            color: #667eea;
+            color: #4f46e5;
         }
 
         .form-section {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #eef2ff;
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 24px;
@@ -191,7 +144,7 @@
 
         .new-etf-option {
             background: #eef2ff;
-            color: #667eea;
+            color: #4f46e5;
             font-weight: 600;
         }
 
@@ -209,12 +162,12 @@
 
         .input-field:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         .btn-add {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
             border: none;
             padding: 10px 24px;
@@ -226,8 +179,7 @@
         }
 
         .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #4338ca;
         }
 
         .stats-grid {
@@ -241,12 +193,6 @@
             border-radius: 12px;
             padding: 20px;
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
         }
 
         .stat-card h3 {
@@ -268,7 +214,7 @@
         }
 
         .bg-blue {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         }
 
         .bg-green {
@@ -297,7 +243,7 @@
         }
 
         thead {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f3f4f6;
         }
 
         th {
@@ -372,7 +318,7 @@
         }
 
         .chart-section {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f9fafb;
             border-radius: 12px;
             padding: 24px;
         }
@@ -454,7 +400,7 @@
 
         .btn-primary {
             flex: 1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -465,8 +411,7 @@
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #4338ca;
         }
 
         .btn-secondary {
@@ -542,17 +487,67 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
+        }
+    
+    
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 24px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .main-content {
+            padding: 0 24px 24px;
+        }
+
+        @media (max-width: 768px) {
             .navbar-container {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
             .nav-link {
                 justify-content: center;
             }
         }
-    </style>
+
+</style>
 </head>
 <body>
     <nav class="navbar">
@@ -564,95 +559,94 @@
         </div>
     </nav>
 
-    <div class="main-content">
-        <div class="container">
-            <div class="header">
-                <div class="header-left">
-                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                    </svg>
-                    <h1>Analizzatore Portafoglio PAC</h1>
-                </div>
-                <div class="header-buttons">
-                    <button class="btn-export" onclick="exportData()">📥 Esporta</button>
-                    <button class="btn-import" onclick="document.getElementById('importFile').click()">📤 Importa</button>
-                    <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importData(event)">
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h2>Registra Acquisto ETF</h2>
-                <div class="form-grid">
-                    <div class="etf-input-container">
-                        <input type="text" id="nome" class="input-field" placeholder="Nome ETF" autocomplete="off" 
-                               oninput="showSuggestions()" onfocus="showSuggestions()" onblur="hideSuggestionsDelayed()">
-                        <div id="suggestions" class="etf-suggestions"></div>
-                    </div>
-                    <input type="number" id="prezzoAcquisto" class="input-field" placeholder="Prezzo acquisto (€)" step="0.01">
-                    <input type="number" id="numeroquote" class="input-field" placeholder="Numero quote" step="0.01">
-                    <input type="date" id="dataAcquisto" class="input-field">
-                    <button class="btn-add" onclick="addAcquisition()">➕ Aggiungi</button>
-                </div>
-            </div>
-
-            <div id="statsSection" style="display: none;">
-                <div class="stats-grid">
-                    <div class="stat-card bg-blue">
-                        <h3>Valore Attuale Portafoglio</h3>
-                        <div class="stat-value" id="valoreAttuale">€ 0.00</div>
-                    </div>
-                    <div class="stat-card bg-orange">
-                        <h3>Capitale Investito</h3>
-                        <div class="stat-value" id="capitaleInvestito">€ 0.00</div>
-                    </div>
-                    <div class="stat-card bg-green">
-                        <h3>Guadagno/Perdita</h3>
-                        <div class="stat-value" id="guadagnoPerdita">€ 0.00</div>
-                        <div class="stat-subtext" id="percentualePerformance">0.00%</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tableSection" style="display: none;">
-                <div class="table-section">
-                    <h2>Dettagli Portafoglio</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ETF</th>
-                                <th class="right">Prezzo Medio Acquisto</th>
-                                <th class="right">Prezzo Attuale</th>
-                                <th class="right">Quote Totali</th>
-                                <th class="right">Investito</th>
-                                <th class="right">Valore Attuale</th>
-                                <th class="right">+/- €</th>
-                                <th class="right">+/- %</th>
-                                <th class="center">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="chartSection" style="display: none;">
-                <div class="chart-section">
-                    <h2>Distribuzione Portafoglio</h2>
-                    <div class="chart-container">
-                        <canvas id="pieChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div id="emptyState" class="empty-state">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                 </svg>
-                <p>Inizia ad aggiungere i tuoi ETF per visualizzare il portafoglio</p>
+                <h1>Analizzatore Portafoglio PAC</h1>
             </div>
+            <div class="header-buttons">
+                <button class="btn-export" onclick="exportData()">📥 Esporta Dati</button>
+                <button class="btn-import" onclick="document.getElementById('importFile').click()">📤 Importa Dati</button>
+                <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importData(event)">
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Registra Acquisto ETF</h2>
+            <div class="form-grid">
+                <div class="etf-input-container">
+                    <input type="text" id="nome" class="input-field" placeholder="Nome ETF" autocomplete="off" 
+                           oninput="showSuggestions()" onfocus="showSuggestions()" onblur="hideSuggestionsDelayed()">
+                    <div id="suggestions" class="etf-suggestions"></div>
+                </div>
+                <input type="number" id="prezzoAcquisto" class="input-field" placeholder="Prezzo acquisto (€)" step="0.01">
+                <input type="number" id="numeroquote" class="input-field" placeholder="Numero quote" step="0.01">
+                <input type="date" id="dataAcquisto" class="input-field">
+                <button class="btn-add" onclick="addAcquisition()">➕ Aggiungi</button>
+            </div>
+        </div>
+
+        <div id="statsSection" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card bg-blue">
+                    <h3>Valore Attuale Portafoglio</h3>
+                    <div class="stat-value" id="valoreAttuale">€ 0.00</div>
+                </div>
+                <div class="stat-card bg-orange">
+                    <h3>Capitale Investito</h3>
+                    <div class="stat-value" id="capitaleInvestito">€ 0.00</div>
+                </div>
+                <div class="stat-card bg-green">
+                    <h3>Guadagno/Perdita</h3>
+                    <div class="stat-value" id="guadagnoPerdita">€ 0.00</div>
+                    <div class="stat-subtext" id="percentualePerformance">0.00%</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tableSection" style="display: none;">
+            <div class="table-section">
+                <h2>Dettagli Portafoglio</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ETF</th>
+                            <th class="right">Prezzo Medio Acquisto</th>
+                            <th class="right">Prezzo Attuale</th>
+                            <th class="right">Quote Totali</th>
+                            <th class="right">Investito</th>
+                            <th class="right">Valore Attuale</th>
+                            <th class="right">+/- €</th>
+                            <th class="right">+/- %</th>
+                            <th class="center">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="chartSection" style="display: none;">
+            <div class="chart-section">
+                <h2>Distribuzione Portafoglio</h2>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+            </svg>
+            <p>Inizia ad aggiungere i tuoi ETF per visualizzare il portafoglio</p>
         </div>
     </div>
 
+    <!-- Modal per aggiornare prezzo attuale -->
     <div id="priceModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-header">Aggiorna Prezzo Attuale</h2>
@@ -677,7 +671,7 @@
     </div>
 
     <script>
-        const COLORS = ['#667eea', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+        const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
         let acquisitions = [];
         let etfsPrezziAttuali = {};
         let chart = null;
@@ -884,3 +878,216 @@
                     percentuale
                 });
             });
+            
+            return portfolio;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('it-IT');
+        }
+
+        function renderPortfolio() {
+            const portfolio = calculatePortfolio();
+
+            if (acquisitions.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('statsSection').style.display = 'none';
+                document.getElementById('tableSection').style.display = 'none';
+                document.getElementById('chartSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('statsSection').style.display = 'block';
+            document.getElementById('tableSection').style.display = 'block';
+            document.getElementById('chartSection').style.display = 'block';
+
+            const totaleInvestito = portfolio.reduce((sum, etf) => sum + etf.investito, 0);
+            const totaleAttuale = portfolio.reduce((sum, etf) => sum + etf.valoreAttuale, 0);
+            const totaleDifferenza = totaleAttuale - totaleInvestito;
+            const totalePercentuale = totaleInvestito > 0 ? (totaleDifferenza / totaleInvestito * 100) : 0;
+
+            document.getElementById('valoreAttuale').textContent = `€ ${totaleAttuale.toFixed(2)}`;
+            document.getElementById('capitaleInvestito').textContent = `€ ${totaleInvestito.toFixed(2)}`;
+            document.getElementById('guadagnoPerdita').textContent = `€ ${totaleDifferenza >= 0 ? '+' : ''}${totaleDifferenza.toFixed(2)}`;
+            document.getElementById('percentualePerformance').textContent = `${totalePercentuale >= 0 ? '+' : ''}${totalePercentuale.toFixed(2)}%`;
+
+            const tbody = document.getElementById('tableBody');
+            let html = '';
+            
+            portfolio.forEach((etf, index) => {
+                const performanceClass = etf.differenza > 0 ? 'positive' : etf.differenza < 0 ? 'negative' : 'neutral';
+                const performanceSign = etf.differenza > 0 ? '+' : '';
+                const etfId = etf.nome.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                html += `
+                    <tr class="etf-row-group">
+                        <td style="font-weight: 700; color: #1f2937;">
+                            <span class="toggle-icon" id="toggle-${etfId}" onclick="toggleDetails('${etfId}')">▶</span>
+                            ${etf.nome}
+                        </td>
+                        <td class="right" style="color: #4b5563;">€ ${etf.prezzoMedioAcquisto.toFixed(2)}</td>
+                        <td class="right" style="color: #4b5563;">€ ${etf.prezzoAttuale.toFixed(2)}</td>
+                        <td class="right" style="color: #4b5563;">${etf.quoteTotali.toFixed(2)}</td>
+                        <td class="right" style="font-weight: 600; color: #6b7280;">€ ${etf.investito.toFixed(2)}</td>
+                        <td class="right" style="font-weight: 700; color: #1f2937;">€ ${etf.valoreAttuale.toFixed(2)}</td>
+                        <td class="right">
+                            <span class="performance-badge ${performanceClass}">
+                                ${performanceSign}€ ${etf.differenza.toFixed(2)}
+                            </span>
+                        </td>
+                        <td class="right">
+                            <span class="performance-badge ${performanceClass}">
+                                ${performanceSign}${etf.percentuale.toFixed(2)}%
+                            </span>
+                        </td>
+                        <td class="center">
+                            <button class="btn-icon" onclick="openPriceModal('${etf.nome}')" title="Aggiorna prezzo">💹</button>
+                        </td>
+                    </tr>
+                `;
+                
+                etf.acquisitions.forEach(acq => {
+                    html += `
+                        <tr class="sub-row detail-${etfId}">
+                            <td style="padding-left: 32px; color: #6b7280;">↳ ${formatDate(acq.dataAcquisto)}</td>
+                            <td class="right" style="color: #6b7280;">€ ${acq.prezzoAcquisto.toFixed(2)}</td>
+                            <td class="right">-</td>
+                            <td class="right" style="color: #6b7280;">${acq.numeroquote.toFixed(2)}</td>
+                            <td class="right" style="color: #6b7280;">€ ${(acq.prezzoAcquisto * acq.numeroquote).toFixed(2)}</td>
+                            <td class="right">-</td>
+                            <td class="right">-</td>
+                            <td class="right">-</td>
+                            <td class="center">
+                                <button class="btn-icon" onclick="event.stopPropagation(); removeAcquisition(${acq.id});" title="Elimina">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+            
+            tbody.innerHTML = html;
+
+            renderChart(portfolio);
+        }
+
+        function renderChart(portfolio) {
+            const ctx = document.getElementById('pieChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: portfolio.map(etf => etf.nome),
+                    datasets: [{
+                        data: portfolio.map(etf => etf.valoreAttuale),
+                        backgroundColor: COLORS,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = portfolio.reduce((sum, etf) => sum + etf.valoreAttuale, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: € ${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('priceModal').addEventListener('click', (e) => {
+            if (e.target.id === 'priceModal') {
+                closePriceModal();
+            }
+        });
+
+        function toggleDetails(etfId) {
+            const detailRows = document.querySelectorAll(`.detail-${etfId}`);
+            const toggleIcon = document.getElementById(`toggle-${etfId}`);
+            
+            detailRows.forEach(row => {
+                row.classList.toggle('visible');
+            });
+            
+            toggleIcon.classList.toggle('expanded');
+        }
+
+        function exportData() {
+            const data = {
+                acquisitions: acquisitions,
+                etfsPrezziAttuali: etfsPrezziAttuali,
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `portafoglio-pac-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.acquisitions && data.etfsPrezziAttuali) {
+                        if (acquisitions.length > 0) {
+                            if (!confirm('Attenzione: hai già dei dati nel portafoglio. Vuoi sostituirli con i dati importati? (Clicca OK per sostituire, Annulla per mantenere i dati attuali)')) {
+                                event.target.value = '';
+                                return;
+                            }
+                        }
+                        
+                        acquisitions = data.acquisitions;
+                        etfsPrezziAttuali = data.etfsPrezziAttuali;
+                        saveData();
+                        renderPortfolio();
+                        alert('Dati importati con successo! ✅');
+                    } else {
+                        alert('Errore: il file non contiene dati validi.');
+                    }
+                } catch (error) {
+                    alert('Errore nella lettura del file. Assicurati che sia un file JSON valido.');
+                    console.error(error);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
