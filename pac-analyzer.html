@@ -694,6 +694,13 @@
         </div>
 
         <div id="chartSection" style="display: none;">
+            <div class="chart-section" style="margin-bottom: 24px;">
+                <h2>Evoluzione Portafoglio nel Tempo</h2>
+                <div style="max-width: 100%; margin: 0 auto;">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+            
             <div class="chart-section">
                 <h2>Distribuzione Portafoglio</h2>
                 <div class="chart-container">
@@ -803,6 +810,7 @@
         let acquisitions = [];
         let etfsPrezziAttuali = {};
         let chart = null;
+        let lineChart = null;
         let editingEtfName = null;
         let hideTimeout = null;
         let allocazioneRowCounter = 0;
@@ -1092,6 +1100,7 @@
             
             tbody.innerHTML = html;
             renderChart(portfolio);
+            renderLineChart();
         }
 
         function renderChart(portfolio) {
@@ -1139,6 +1148,175 @@
                     }
                 }
             });
+        }
+
+        function renderLineChart() {
+            const timelineData = calculateTimelineData();
+            
+            if (timelineData.length === 0) return;
+
+            const ctx = document.getElementById('lineChart').getContext('2d');
+
+            if (lineChart) {
+                lineChart.destroy();
+            }
+
+            lineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timelineData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'Valore Attuale Portafoglio',
+                            data: timelineData.map(d => d.valoreAttuale),
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Capitale Investito',
+                            data: timelineData.map(d => d.capitaleInvestito),
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Guadagno/Perdita',
+                            data: timelineData.map(d => d.guadagno),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 13,
+                                    weight: 600
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += '€ ' + context.parsed.y.toFixed(2);
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€ ' + value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateTimelineData() {
+            if (acquisitions.length === 0) return [];
+
+            const sortedAcquisitions = [...acquisitions].sort((a, b) => 
+                new Date(a.dataAcquisto) - new Date(b.dataAcquisto)
+            );
+
+            const firstDate = new Date(sortedAcquisitions[0].dataAcquisto);
+            const today = new Date();
+            
+            const timeline = [];
+            const monthsMap = new Map();
+
+            sortedAcquisitions.forEach(acq => {
+                const date = new Date(acq.dataAcquisto);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthsMap.has(monthKey)) {
+                    monthsMap.set(monthKey, []);
+                }
+                monthsMap.get(monthKey).push(acq);
+            });
+
+            const allMonths = Array.from(monthsMap.keys()).sort();
+            
+            let cumulativeAcquisitions = [];
+            
+            allMonths.forEach(monthKey => {
+                const monthAcqs = monthsMap.get(monthKey);
+                cumulativeAcquisitions = [...cumulativeAcquisitions, ...monthAcqs];
+                
+                const grouped = {};
+                cumulativeAcquisitions.forEach(acq => {
+                    if (!grouped[acq.nome]) {
+                        grouped[acq.nome] = [];
+                    }
+                    grouped[acq.nome].push(acq);
+                });
+
+                let capitaleInvestito = 0;
+                let valoreAttuale = 0;
+
+                Object.keys(grouped).forEach(etfName => {
+                    const acqs = grouped[etfName];
+                    const quoteTotali = acqs.reduce((sum, acq) => sum + acq.numeroquote, 0);
+                    const investitoTotale = acqs.reduce((sum, acq) => sum + (acq.prezzoAcquisto * acq.numeroquote), 0);
+                    const prezzoAttuale = etfsPrezziAttuali[etfName] || (investitoTotale / quoteTotali);
+                    
+                    capitaleInvestito += investitoTotale;
+                    valoreAttuale += quoteTotali * prezzoAttuale;
+                });
+
+                const guadagno = valoreAttuale - capitaleInvestito;
+
+                const [year, month] = monthKey.split('-');
+                const displayDate = new Date(year, month - 1).toLocaleDateString('it-IT', { 
+                    month: 'short', 
+                    year: 'numeric' 
+                });
+
+                timeline.push({
+                    date: displayDate,
+                    capitaleInvestito: capitaleInvestito,
+                    valoreAttuale: valoreAttuale,
+                    guadagno: guadagno
+                });
+            });
+
+            return timeline;
         }
 
         function toggleDetails(etfId) {
