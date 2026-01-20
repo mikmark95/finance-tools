@@ -483,14 +483,6 @@
             transform: rotate(90deg);
         }
 
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    
-    
-
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 16px 24px;
@@ -532,11 +524,79 @@
             color: #667eea;
         }
 
-        .main-content {
-            padding: 0 24px 24px;
+        .allocazione-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .allocazione-results {
+            margin-top: 24px;
+            background: #f0f9ff;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .allocazione-table {
+            margin-top: 16px;
+        }
+
+        .allocazione-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .allocazione-table th {
+            background: #4f46e5;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .allocazione-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .allocazione-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+
+        .btn-remove-small {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-remove-small:hover {
+            background: #dc2626;
+        }
+
+        .modal-large {
+            max-width: 900px;
         }
 
         @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
             .navbar-container {
                 flex-direction: column;
                 align-items: stretch;
@@ -545,9 +605,12 @@
             .nav-link {
                 justify-content: center;
             }
-        }
 
-</style>
+            .allocazione-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -556,6 +619,7 @@
             <a href="pac-analyzer.html" class="nav-link active">📈 Analizzatore PAC</a>
             <a href="simulatore-pac.html" class="nav-link">💰 Simulatore PAC</a>
             <a href="budget.html" class="nav-link">🧾 Budget</a>
+            <a href="#" class="nav-link" onclick="event.preventDefault(); openAllocazioneModal()">💼 Pianifica Allocazione</a>
         </div>
     </nav>
 
@@ -646,7 +710,6 @@
         </div>
     </div>
 
-    <!-- Modal per aggiornare prezzo attuale -->
     <div id="priceModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-header">Aggiorna Prezzo Attuale</h2>
@@ -670,6 +733,71 @@
         </div>
     </div>
 
+    <div id="allocazioneModal" class="modal">
+        <div class="modal-content modal-large">
+            <h2 class="modal-header">Pianifica Allocazione Capitale</h2>
+            <div class="modal-body">
+                <div>
+                    <div class="input-label">Capitale Iniziale Disponibile (€)</div>
+                    <input type="number" id="capitaleIniziale" class="input-field" style="width: 100%;" step="0.01" placeholder="Es: 10000">
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div class="input-label">Asset da Allocare</div>
+                        <button class="btn-add" style="padding: 6px 16px; font-size: 13px;" onclick="addAllocazioneRow()">➕ Aggiungi Asset</button>
+                    </div>
+                    
+                    <div id="allocazioneRows"></div>
+                </div>
+
+                <div id="allocazioneResults" class="allocazione-results" style="display: none;">
+                    <h3 style="margin-bottom: 12px; font-size: 18px; font-weight: 600; color: #1f2937;">Risultati Allocazione</h3>
+                    <div class="allocazione-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th class="right">% Allocazione</th>
+                                    <th class="right">Capitale Allocato</th>
+                                    <th class="right">Prezzo Unitario</th>
+                                    <th class="right">Quote Acquistabili</th>
+                                    <th class="right">Capitale Utilizzato</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allocazioneTableBody"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 16px; background: white; border-radius: 8px; border-left: 4px solid #4f46e5;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                            <div>
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Capitale Iniziale</div>
+                                <div style="font-size: 20px; font-weight: 700; color: #1f2937;" id="summaryCapitaleIniziale">€ 0.00</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Capitale Effettivamente Investito</div>
+                                <div style="font-size: 20px; font-weight: 700; color: #4f46e5;" id="summaryCapitaleInvestito">€ 0.00</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">Denaro Residuo</div>
+                                <div style="font-size: 20px; font-weight: 700; color: #10b981;" id="summaryDenaroResiduo">€ 0.00</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">% Capitale Investito</div>
+                                <div style="font-size: 20px; font-weight: 700; color: #6366f1;" id="summaryPercentualeInvestita">0.00%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAllocazioneModal()">Chiudi</button>
+                <button class="btn-primary" onclick="calcolaAllocazione()">Calcola Allocazione</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
         let acquisitions = [];
@@ -677,11 +805,12 @@
         let chart = null;
         let editingEtfName = null;
         let hideTimeout = null;
+        let allocazioneRowCounter = 0;
+        let allocazioneData = [];
 
         window.addEventListener('load', () => {
             loadData();
             renderPortfolio();
-            
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('dataAcquisto').value = today;
         });
@@ -695,7 +824,6 @@
             const input = document.getElementById('nome');
             const suggestionsDiv = document.getElementById('suggestions');
             const inputValue = input.value.trim().toUpperCase();
-            
             const existingEtfs = getExistingEtfs();
             
             if (existingEtfs.length === 0 && inputValue === '') {
@@ -704,10 +832,7 @@
             }
             
             let html = '';
-            
-            const filteredEtfs = existingEtfs.filter(etf => 
-                etf.includes(inputValue)
-            );
+            const filteredEtfs = existingEtfs.filter(etf => etf.includes(inputValue));
             
             filteredEtfs.forEach(etf => {
                 html += `<div class="suggestion-item" onmousedown="selectEtf('${etf}')">${etf}</div>`;
@@ -841,14 +966,12 @@
 
         function groupAcquisitionsByEtf() {
             const grouped = {};
-            
             acquisitions.forEach(acq => {
                 if (!grouped[acq.nome]) {
                     grouped[acq.nome] = [];
                 }
                 grouped[acq.nome].push(acq);
             });
-            
             return grouped;
         }
 
@@ -916,7 +1039,7 @@
             const tbody = document.getElementById('tableBody');
             let html = '';
             
-            portfolio.forEach((etf, index) => {
+            portfolio.forEach((etf) => {
                 const performanceClass = etf.differenza > 0 ? 'positive' : etf.differenza < 0 ? 'negative' : 'neutral';
                 const performanceSign = etf.differenza > 0 ? '+' : '';
                 const etfId = etf.nome.replace(/[^a-zA-Z0-9]/g, '_');
@@ -968,7 +1091,6 @@
             });
             
             tbody.innerHTML = html;
-
             renderChart(portfolio);
         }
 
@@ -1019,12 +1141,6 @@
             });
         }
 
-        document.getElementById('priceModal').addEventListener('click', (e) => {
-            if (e.target.id === 'priceModal') {
-                closePriceModal();
-            }
-        });
-
         function toggleDetails(etfId) {
             const detailRows = document.querySelectorAll(`.detail-${etfId}`);
             const toggleIcon = document.getElementById(`toggle-${etfId}`);
@@ -1066,7 +1182,7 @@
                     
                     if (data.acquisitions && data.etfsPrezziAttuali) {
                         if (acquisitions.length > 0) {
-                            if (!confirm('Attenzione: hai già dei dati nel portafoglio. Vuoi sostituirli con i dati importati? (Clicca OK per sostituire, Annulla per mantenere i dati attuali)')) {
+                            if (!confirm('Attenzione: hai già dei dati nel portafoglio. Vuoi sostituirli con i dati importati?')) {
                                 event.target.value = '';
                                 return;
                             }
@@ -1081,13 +1197,182 @@
                         alert('Errore: il file non contiene dati validi.');
                     }
                 } catch (error) {
-                    alert('Errore nella lettura del file. Assicurati che sia un file JSON valido.');
+                    alert('Errore nella lettura del file.');
                     console.error(error);
                 }
                 event.target.value = '';
             };
             reader.readAsText(file);
         }
+
+        function openAllocazioneModal() {
+            document.getElementById('allocazioneModal').classList.add('active');
+            allocazioneRowCounter = 0;
+            allocazioneData = [];
+            document.getElementById('capitaleIniziale').value = '';
+            document.getElementById('allocazioneRows').innerHTML = '';
+            document.getElementById('allocazioneResults').style.display = 'none';
+            addAllocazioneRow();
+            addAllocazioneRow();
+        }
+
+        function closeAllocazioneModal() {
+            document.getElementById('allocazioneModal').classList.remove('active');
+        }
+
+        function addAllocazioneRow() {
+            const rowId = allocazioneRowCounter++;
+            const container = document.getElementById('allocazioneRows');
+            
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'allocazione-row';
+            rowDiv.id = `alloc-row-${rowId}`;
+            rowDiv.innerHTML = `
+                <input type="text" class="input-field" placeholder="Nome Asset (es: VWCE)" id="asset-${rowId}">
+                <input type="number" class="input-field" placeholder="% Allocazione" step="0.01" id="percent-${rowId}">
+                <input type="number" class="input-field" placeholder="Prezzo Unitario €" step="0.01" id="price-${rowId}">
+                <div style="font-weight: 600; color: #4b5563; text-align: center;" id="capital-${rowId}">€ 0.00</div>
+                <button class="btn-remove-small" onclick="removeAllocazioneRow(${rowId})">🗑️</button>
+            `;
+            
+            container.appendChild(rowDiv);
+
+            document.getElementById(`percent-${rowId}`).addEventListener('input', updateCapitalPreview);
+            document.getElementById(`asset-${rowId}`).addEventListener('input', updateCapitalPreview);
+            document.getElementById(`price-${rowId}`).addEventListener('input', updateCapitalPreview);
+            document.getElementById('capitaleIniziale').addEventListener('input', updateCapitalPreview);
+        }
+
+        function removeAllocazioneRow(rowId) {
+            const row = document.getElementById(`alloc-row-${rowId}`);
+            if (row) {
+                row.remove();
+                updateCapitalPreview();
+            }
+        }
+
+        function updateCapitalPreview() {
+            const capitaleIniziale = parseFloat(document.getElementById('capitaleIniziale').value) || 0;
+            const rows = document.querySelectorAll('[id^="alloc-row-"]');
+            
+            rows.forEach(row => {
+                const rowId = row.id.split('-')[2];
+                const percent = parseFloat(document.getElementById(`percent-${rowId}`).value) || 0;
+                const capitalAllocato = (capitaleIniziale * percent) / 100;
+                document.getElementById(`capital-${rowId}`).textContent = `€ ${capitalAllocato.toFixed(2)}`;
+            });
+        }
+
+        function calcolaAllocazione() {
+            const capitaleIniziale = parseFloat(document.getElementById('capitaleIniziale').value);
+            
+            if (!capitaleIniziale || capitaleIniziale <= 0) {
+                alert('Inserisci un capitale iniziale valido');
+                return;
+            }
+
+            const rows = document.querySelectorAll('[id^="alloc-row-"]');
+            allocazioneData = [];
+            let totalPercent = 0;
+
+            rows.forEach(row => {
+                const rowId = row.id.split('-')[2];
+                const asset = document.getElementById(`asset-${rowId}`).value.trim();
+                const percent = parseFloat(document.getElementById(`percent-${rowId}`).value);
+                const price = parseFloat(document.getElementById(`price-${rowId}`).value);
+
+                if (asset && percent && price && percent > 0 && price > 0) {
+                    totalPercent += percent;
+                    const capitalAllocato = (capitaleIniziale * percent) / 100;
+                    const quoteAcquistabili = Math.floor(capitalAllocato / price);
+                    
+                    allocazioneData.push({
+                        asset,
+                        percent,
+                        capitalAllocato,
+                        price,
+                        quoteAcquistabili
+                    });
+                }
+            });
+
+            if (allocazioneData.length === 0) {
+                alert('Compila almeno un asset con tutti i dati richiesti');
+                return;
+            }
+
+            if (Math.abs(totalPercent - 100) > 0.01) {
+                if (!confirm(`Attenzione: la somma delle percentuali è ${totalPercent.toFixed(2)}% invece di 100%. Vuoi continuare?`)) {
+                    return;
+                }
+            }
+
+            renderAllocazioneResults();
+        }
+
+        function renderAllocazioneResults() {
+            const tbody = document.getElementById('allocazioneTableBody');
+            const capitaleIniziale = parseFloat(document.getElementById('capitaleIniziale').value);
+            let html = '';
+            
+            let totalCapital = 0;
+            let totalPercent = 0;
+            let totalCapitaleEffettivo = 0;
+
+            allocazioneData.forEach(item => {
+                totalCapital += item.capitalAllocato;
+                totalPercent += item.percent;
+                const capitaleEffettivo = item.quoteAcquistabili * item.price;
+                const residuoAsset = item.capitalAllocato - capitaleEffettivo;
+                totalCapitaleEffettivo += capitaleEffettivo;
+                
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${item.asset}</td>
+                        <td class="right">${item.percent.toFixed(2)}%</td>
+                        <td class="right">€ ${item.capitalAllocato.toFixed(2)}</td>
+                        <td class="right">€ ${item.price.toFixed(2)}</td>
+                        <td class="right" style="font-weight: 700; color: #4f46e5;">${item.quoteAcquistabili}</td>
+                        <td class="right" style="font-weight: 600; color: #059669;">€ ${capitaleEffettivo.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            const denaroResiduo = capitaleIniziale - totalCapitaleEffettivo;
+            const percentualeInvestita = (totalCapitaleEffettivo / capitaleIniziale) * 100;
+
+            html += `
+                <tr class="total-row">
+                    <td>TOTALE</td>
+                    <td class="right">${totalPercent.toFixed(2)}%</td>
+                    <td class="right">€ ${totalCapital.toFixed(2)}</td>
+                    <td class="right">-</td>
+                    <td class="right">-</td>
+                    <td class="right">€ ${totalCapitaleEffettivo.toFixed(2)}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+            
+            document.getElementById('summaryCapitaleIniziale').textContent = `€ ${capitaleIniziale.toFixed(2)}`;
+            document.getElementById('summaryCapitaleInvestito').textContent = `€ ${totalCapitaleEffettivo.toFixed(2)}`;
+            document.getElementById('summaryDenaroResiduo').textContent = `€ ${denaroResiduo.toFixed(2)}`;
+            document.getElementById('summaryPercentualeInvestita').textContent = `${percentualeInvestita.toFixed(2)}%`;
+            
+            document.getElementById('allocazioneResults').style.display = 'block';
+        }
+
+        document.getElementById('priceModal').addEventListener('click', (e) => {
+            if (e.target.id === 'priceModal') {
+                closePriceModal();
+            }
+        });
+
+        document.getElementById('allocazioneModal').addEventListener('click', (e) => {
+            if (e.target.id === 'allocazioneModal') {
+                closeAllocazioneModal();
+            }
+        });
     </script>
 </body>
 </html>
